@@ -1,7 +1,16 @@
 package com.cfs.authservice.service;
 
+import java.time.LocalDateTime;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
+import java.util.stream.Collectors;
+
+import com.cfs.authservice.dto.AuthResponse;
+import com.cfs.authservice.dto.LoginRequest;
 import com.cfs.authservice.dto.MessageResponse;
 import com.cfs.authservice.dto.RegisterRequest;
+import com.cfs.authservice.entity.RefreshToken;
 import com.cfs.authservice.entity.Role;
 import com.cfs.authservice.entity.RoleName;
 import com.cfs.authservice.entity.User;
@@ -12,6 +21,7 @@ import com.cfs.authservice.util.JwtUtil;
 import lombok.RequiredArgsConstructor;
 
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -46,6 +56,56 @@ public class AuthService {
 		user.getRoles().add(userRole);
 		userRepository.save(user);
 		return new MessageResponse("User registered successfully");
+	}
+
+	public AuthResponse login(LoginRequest loginRequest) {
+
+		authenticationManager.authenticate(
+				new UsernamePasswordAuthenticationToken(loginRequest.getEmail(), loginRequest.getPassword())
+		);
+
+		User user = userRepository.findByEmail(loginRequest.getEmail()).orElseThrow(()-> new RuntimeException("User not found"));
+
+		Map<String, Object> claims = new HashMap<>();
+
+		claims.put(
+				"roles",
+				user.getRoles()
+						.stream()
+						.map(Role::getName)
+						.toList()
+		);
+
+		claims.put("userId", user.getId());
+
+		String accessToken =
+				jwtUtil.generateToken(user.getEmail(), claims);
+
+		refreshTokenRepository.deleteByUser(user);
+
+		String refreshToken = UUID.randomUUID().toString();
+
+		RefreshToken refresh = RefreshToken.builder()
+				.token(refreshToken)
+				.user(user)
+				.expiryDate(LocalDateTime.now().plusDays(7))
+				.revoked(false)
+				.build();
+
+		refreshTokenRepository.save(refresh);
+
+		return AuthResponse.builder()
+				.accessToken(accessToken)
+				.refreshToken(refreshToken)
+				.userId(user.getId())
+				.email(user.getEmail())
+				.roles(
+						user.getRoles()
+								.stream()
+								.map(Role::getName)
+								.collect(Collectors.toSet())
+				)
+				.build();
 	}
 
 
