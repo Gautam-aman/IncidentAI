@@ -9,6 +9,7 @@ import java.util.stream.Collectors;
 import com.cfs.authservice.dto.AuthResponse;
 import com.cfs.authservice.dto.LoginRequest;
 import com.cfs.authservice.dto.MessageResponse;
+import com.cfs.authservice.dto.RefreshTokenRequest;
 import com.cfs.authservice.dto.RegisterRequest;
 import com.cfs.authservice.entity.RefreshToken;
 import com.cfs.authservice.entity.Role;
@@ -108,6 +109,52 @@ public class AuthService {
 				.build();
 	}
 
+	public AuthResponse refreshToken(RefreshTokenRequest refreshTokenRequest) {
+		RefreshToken token =
+				refreshTokenRepository.findByRefreshToken(
+								refreshTokenRequest.getRefreshToken()
+						)
+						.orElseThrow(() ->
+								new RuntimeException("Invalid refresh token"));
 
+		if (token.getRevoked()){
+			throw new RuntimeException("Refresh Token Revoked");
+		}
+
+		if (token.getExpiryDate().isBefore(LocalDateTime.now())) {
+			throw new RuntimeException("Refresh token expired");
+		}
+
+		User user = token.getUser();
+
+		Map<String, Object> claims = new HashMap<>();
+
+		claims.put(
+				"roles",
+				user.getRoles()
+						.stream()
+						.map(Role::getName)
+						.toList()
+		);
+
+		claims.put("userId", user.getId());
+
+		String accessToken =
+				jwtUtil.generateToken(user.getEmail(), claims);
+
+		return AuthResponse.builder()
+				.accessToken(accessToken)
+				.refreshToken(token.getToken())
+				.userId(user.getId())
+				.email(user.getEmail())
+				.roles(
+						user.getRoles()
+								.stream()
+								.map(Role::getName)
+								.collect(Collectors.toSet())
+				)
+				.build();
+
+	}
 
 }
