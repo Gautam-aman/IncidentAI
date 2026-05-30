@@ -50,7 +50,7 @@ public class AuthController {
 			@Valid @RequestBody LogoutRequest request
 	) {
 		return authService.logout(
-				request.getRefreshToken()
+				request.getRefreshToken(),request.getRefreshToken()
 		);
 	}
 

@@ -26,6 +26,8 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+
+
 @Service
 @RequiredArgsConstructor
 public class AuthService {
@@ -36,6 +38,7 @@ public class AuthService {
 	private final PasswordEncoder passwordEncoder;
 	private final AuthenticationManager authenticationManager;
 	private final JwtUtil jwtUtil;
+	private final TokenBlacklistService tokenBlacklistService;
 
 	public MessageResponse register(RegisterRequest registerRequest) {
 		if (userRepository.existsByEmail(registerRequest.getEmail())) {
@@ -84,20 +87,22 @@ public class AuthService {
 
 		refreshTokenRepository.deleteByUser(user);
 
-		String refreshToken = UUID.randomUUID().toString();
+		String newRefreshToken = UUID.randomUUID().toString();
 
-		RefreshToken refresh = RefreshToken.builder()
-				.token(refreshToken)
-				.user(user)
-				.expiryDate(LocalDateTime.now().plusDays(7))
-				.revoked(false)
-				.build();
+		RefreshToken newToken =
+				RefreshToken.builder()
+						.token(newRefreshToken)
+						.user(user)
+						.expiryDate(LocalDateTime.now().plusDays(7))
+						.revoked(false)
+						.build();
 
-		refreshTokenRepository.save(refresh);
+		refreshTokenRepository.save(newToken);
+
 
 		return AuthResponse.builder()
 				.accessToken(accessToken)
-				.refreshToken(refreshToken)
+				.refreshToken(newRefreshToken)
 				.userId(user.getId())
 				.email(user.getEmail())
 				.roles(
@@ -164,6 +169,10 @@ public class AuthService {
 								new RuntimeException("Invalid refresh token"));
 
 		token.setRevoked(true);
+		tokenBlacklistService.blacklistToken(
+				refreshToken,
+				15 * 60 * 1000
+		);
 		refreshTokenRepository.save(token);
 		return new MessageResponse("Logout successfully");
 

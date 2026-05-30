@@ -2,6 +2,7 @@ package com.cfs.authservice.security;
 
 import java.io.IOException;
 
+import com.cfs.authservice.service.TokenBlacklistService;
 import com.cfs.authservice.util.JwtUtil;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -22,6 +23,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
 	private final JwtUtil jwtUtil;
 	private final CustomUserDetailsService userDetailsService;
+	private final TokenBlacklistService tokenBlacklistService;
 
 	@Override
 	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
@@ -46,6 +48,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 				authentication.setDetails(new WebAuthenticationDetails(request));
 				SecurityContextHolder.getContext().setAuthentication(authentication);
 			}
+		}
+		if (tokenBlacklistService.isBlacklisted(jwt)) {
+			filterChain.doFilter(request, response);
+			return;
 		}
 		filterChain.doFilter(request, response);
 	}
