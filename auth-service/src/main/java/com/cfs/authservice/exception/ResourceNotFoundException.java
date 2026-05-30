@@ -1,4 +1,4 @@
-package exception;
+package com.cfs.authservice.exception;
 
 public class ResourceNotFoundException extends RuntimeException {
 	public ResourceNotFoundException(String message) {
