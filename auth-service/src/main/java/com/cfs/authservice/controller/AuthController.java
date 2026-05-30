@@ -2,6 +2,7 @@ package com.cfs.authservice.controller;
 
 import com.cfs.authservice.dto.AuthResponse;
 import com.cfs.authservice.dto.LoginRequest;
+import com.cfs.authservice.dto.LogoutRequest;
 import com.cfs.authservice.dto.MessageResponse;
 import com.cfs.authservice.dto.RefreshTokenRequest;
 import com.cfs.authservice.dto.RegisterRequest;
@@ -42,6 +43,15 @@ public class AuthController {
 	@GetMapping("/me")
 	public String currentUser(Authentication authentication){
 		return authentication.getName();
+	}
+
+	@PostMapping("/logout")
+	public MessageResponse logout(
+			@Valid @RequestBody LogoutRequest request
+	) {
+		return authService.logout(
+				request.getRefreshToken()
+		);
 	}
 
 }
