@@ -157,4 +157,16 @@ public class AuthService {
 
 	}
 
+	public MessageResponse logout(String refreshToken) {
+		RefreshToken token =
+				refreshTokenRepository.findByRefreshToken(refreshToken)
+						.orElseThrow(() ->
+								new RuntimeException("Invalid refresh token"));
+
+		token.setRevoked(true);
+		refreshTokenRepository.save(token);
+		return new MessageResponse("Logout successfully");
+
+	}
+
 }
