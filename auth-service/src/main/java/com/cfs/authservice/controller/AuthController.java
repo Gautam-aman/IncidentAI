@@ -42,7 +42,7 @@ public class AuthController {
 
 	@GetMapping("/me")
 	public String currentUser(Authentication authentication){
-		return authentication.getName();
+		return authService.me(authentication.getName());
 	}
 
 	@PostMapping("/logout")
@@ -50,7 +50,7 @@ public class AuthController {
 			@Valid @RequestBody LogoutRequest request
 	) {
 		return authService.logout(
-				request.getRefreshToken(),request.getRefreshToken()
+				request.getRefreshToken()
 		);
 	}
 

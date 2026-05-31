@@ -11,6 +11,7 @@ import com.cfs.authservice.dto.LoginRequest;
 import com.cfs.authservice.dto.MessageResponse;
 import com.cfs.authservice.dto.RefreshTokenRequest;
 import com.cfs.authservice.dto.RegisterRequest;
+import com.cfs.authservice.dto.UserProfileResponse;
 import com.cfs.authservice.entity.RefreshToken;
 import com.cfs.authservice.entity.Role;
 import com.cfs.authservice.entity.RoleName;
@@ -160,6 +161,24 @@ public class AuthService {
 				)
 				.build();
 
+	}
+
+	public UserProfileResponse me(String email) {
+
+		User user = userRepository.findByEmail(email)
+				.orElseThrow();
+
+		return UserProfileResponse.builder()
+				.id(user.getId())
+				.name(user.getUsername())
+				.email(user.getEmail())
+				.roles(
+						user.getRoles()
+								.stream()
+								.map(Role::getName)
+								.collect(Collectors.toSet())
+				)
+				.build();
 	}
 
 	public MessageResponse logout(String refreshToken) {
