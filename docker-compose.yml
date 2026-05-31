@@ -23,6 +23,17 @@ services:
 
     ports:
       - "6379:6379"
+  auth-service:
+    build: ./auth-service
+
+    ports:
+      - "8081:8081"
+
+  gateway-service:
+    build: ./gateway-service
+
+    ports:
+        - "8080:8080"
 
 volumes:
   postgres_data:

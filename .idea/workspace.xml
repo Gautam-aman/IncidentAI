@@ -2,8 +2,16 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="7e26b689-7355-41c9-9edc-a0161fdfb16b" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/auth-service/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/auth-service/pom.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/docker-compose.yml" beforeDir="false" afterPath="$PROJECT_DIR$/docker-compose.yml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/gateway-service/.gitattributes" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/gateway-service/.gitignore" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/gateway-service/.mvn/wrapper/maven-wrapper.properties" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/gateway-service/mvnw" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/gateway-service/mvnw.cmd" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/gateway-service/pom.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/gateway-service/src/main/java/com/cfs/gatewayservice/GatewayServiceApplication.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/gateway-service/src/main/resources/application.properties" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/gateway-service/src/test/java/com/cfs/gatewayservice/GatewayServiceApplicationTests.java" beforeDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -61,6 +69,9 @@
       <workItem from="1779258474545" duration="134000" />
       <workItem from="1780162151793" duration="22000" />
       <workItem from="1780163257473" duration="28000" />
+      <workItem from="1780243759375" duration="42000" />
+      <workItem from="1780244413562" duration="69000" />
+      <workItem from="1780244533970" duration="42000" />
     </task>
     <servers />
   </component>
