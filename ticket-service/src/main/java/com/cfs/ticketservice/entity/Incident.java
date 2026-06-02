@@ -31,7 +31,7 @@ public class Incident {
 
 	@Id
     @GeneratedValue(strategy = GenerationType.UUID)
-    private Long id;
+    private UUID id;
 
 	@Column(nullable = false)
 	private String title;

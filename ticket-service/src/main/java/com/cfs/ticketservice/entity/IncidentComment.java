@@ -29,7 +29,7 @@ public class IncidentComment {
 
 	@Id
     @GeneratedValue(strategy = GenerationType.UUID)
-    private Integer id;
+    private UUID id;
 
 	private UUID incidentId;
 
