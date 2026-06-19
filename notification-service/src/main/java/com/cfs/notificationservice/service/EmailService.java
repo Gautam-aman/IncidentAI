@@ -1,4 +1,32 @@
 package com.cfs.notificationservice.service;
 
+
+import lombok.extern.slf4j.Slf4j;
+
+import org.springframework.stereotype.Service;
+
+@Slf4j
+@Service
 public class EmailService {
+
+	public void sendEmail(
+			String recipient,
+			String subject,
+			String body
+	) {
+
+		log.info(
+				"""
+				Sending Email
+
+				To: {}
+				Subject: {}
+				Body: {}
+				""",
+				recipient,
+				subject,
+				body
+		);
+	}
+
 }
