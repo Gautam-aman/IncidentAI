@@ -11,6 +11,7 @@ import com.cfs.ticketservice.entity.Incident;
 import com.cfs.ticketservice.entity.IncidentAudit;
 import com.cfs.ticketservice.entity.IncidentComment;
 import com.cfs.ticketservice.entity.IncidentStatus;
+import com.cfs.ticketservice.event.IncidentCreatedEvent;
 import com.cfs.ticketservice.repository.IncidentAuditRepository;
 import com.cfs.ticketservice.repository.IncidentCommentRepository;
 import com.cfs.ticketservice.repository.IncidentRepository;
@@ -26,6 +27,7 @@ public class IncidentService {
 	private final IncidentCommentRepository commentRepository;
 	private final IncidentAuditRepository auditRepository;
 	private final AuditService auditService;
+	private final KafkaProducerService kafkaProducerService;
 
 	public Incident createIncident(CreateIncidentRequest request) {
 		Incident incident = Incident.builder()
@@ -37,6 +39,14 @@ public class IncidentService {
 				.reporterId(UUID.fromString(request.getReporterId()))
 				.build();
 		Incident saved = incidentRepository.save(incident);
+		kafkaProducerService.publish(
+				"incident-created",
+				IncidentCreatedEvent.builder()
+						.incidentId(saved.getId())
+						.title(saved.getTitle())
+						.priority(saved.getPriority())
+						.build()
+		);
 		auditService.log(saved.getId() , saved.getReporterId() , "INCIDENT_CREATED",
 				"Incident created");
 
