@@ -11,7 +11,9 @@ import com.cfs.ticketservice.entity.Incident;
 import com.cfs.ticketservice.entity.IncidentAudit;
 import com.cfs.ticketservice.entity.IncidentComment;
 import com.cfs.ticketservice.entity.IncidentStatus;
+import com.cfs.ticketservice.event.IncidentAssignedEvent;
 import com.cfs.ticketservice.event.IncidentCreatedEvent;
+import com.cfs.ticketservice.event.IncidentStatusChangedEvent;
 import com.cfs.ticketservice.repository.IncidentAuditRepository;
 import com.cfs.ticketservice.repository.IncidentCommentRepository;
 import com.cfs.ticketservice.repository.IncidentRepository;
@@ -63,6 +65,16 @@ public class IncidentService {
 		incident.setAssigneeId(request.getAssigneeId());
 		Incident updatedIncident = incidentRepository.save(incident);
 
+		kafkaProducerService.publish(
+				"incident-assigned",
+				IncidentAssignedEvent.builder()
+						.incidentId(updatedIncident.getId())
+						.assigneeId(
+								updatedIncident.getAssigneeId()
+						)
+						.build()
+		);
+
 		auditService.log(incidentId , request.getPerformedBy() , "ASSIGNED",
 				"Assigned to " + request.getAssigneeId());
 
@@ -75,6 +87,19 @@ public class IncidentService {
 		IncidentStatus old = incident.getStatus();
 		incident.setStatus(request.getStatus());
 		Incident updatedIncident = incidentRepository.save(incident);
+
+		kafkaProducerService.publish(
+
+				"incident-status-changed",
+
+				IncidentStatusChangedEvent.builder()
+						.incidentId(updatedIncident.getId())
+						.oldStatus(old.name())
+						.newStatus(
+								request.getStatus().name()
+						)
+						.build()
+		);
 
 		auditService.log(
 				incidentId,
