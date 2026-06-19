@@ -19,6 +19,16 @@ public class KafkaTopicConfig {
 	}
 
 	@Bean
+	public NewTopic notificationDlq() {
+
+		return TopicBuilder
+				.name("notification-dlq")
+				.partitions(3)
+				.replicas(1)
+				.build();
+	}
+
+	@Bean
 	public NewTopic incidentAssignedTopic() {
 		return TopicBuilder
 				.name("incident-assigned")

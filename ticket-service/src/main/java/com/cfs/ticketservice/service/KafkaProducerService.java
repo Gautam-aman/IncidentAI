@@ -15,4 +15,13 @@ public class KafkaProducerService {
 		kafkaTemplate.send(topic, Event);
 	}
 
+	public void publishToDlq(
+			Object event
+	) {
+		kafkaTemplate.send(
+				"notification-dlq",
+				event
+		);
+	}
+
 }

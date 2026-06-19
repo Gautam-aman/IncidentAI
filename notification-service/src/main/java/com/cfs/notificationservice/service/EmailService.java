@@ -9,6 +9,11 @@ import org.springframework.stereotype.Service;
 @Service
 public class EmailService {
 
+
+	@Retryable(
+			retryFor = Exception.class,
+			maxAttempts = 3
+	)
 	public void sendEmail(
 			String recipient,
 			String subject,
