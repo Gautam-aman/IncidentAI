@@ -1,0 +1,18 @@
+server:
+  port: 8085
+
+spring:
+
+  application:
+    name: search-service
+
+  elasticsearch:
+    uris: http://localhost:9200
+
+  kafka:
+    bootstrap-servers: localhost:9092
+
+    consumer:
+      group-id: search-group
+
+      auto-offset-reset: earliest
