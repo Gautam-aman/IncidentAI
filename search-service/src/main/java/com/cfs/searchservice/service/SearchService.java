@@ -15,7 +15,7 @@ public class SearchService {
 
 		private final IncidentSearchRepository incidentSearchRepository;
 
-		public void incident(IncidentDocument incidentDocument) {
+		public void index(IncidentDocument incidentDocument) {
 			incidentSearchRepository.save(incidentDocument);
 		}
 
