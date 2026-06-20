@@ -4,7 +4,9 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="7e26b689-7355-41c9-9edc-a0161fdfb16b" name="Changes" comment="" />
+    <list default="true" id="7e26b689-7355-41c9-9edc-a0161fdfb16b" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/docker-compose.yml" beforeDir="false" afterPath="$PROJECT_DIR$/docker-compose.yml" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -73,6 +75,7 @@
       <workItem from="1780421988436" duration="206000" />
       <workItem from="1781687159429" duration="632000" />
       <workItem from="1781873284812" duration="130000" />
+      <workItem from="1781969742149" duration="359000" />
     </task>
     <servers />
   </component>
