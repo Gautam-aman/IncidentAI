@@ -75,6 +75,17 @@ services:
     ports:
       - "9200:9200"
 
+  qdrant:
+  image: qdrant/qdrant
+
+  container_name: incident-qdrant
+
+  ports:
+    - "6333:6333"
+
+  volumes:
+    - qdrant_storage:/qdrant/storage
+
 
 
 volumes:
