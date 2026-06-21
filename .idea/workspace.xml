@@ -4,10 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="7e26b689-7355-41c9-9edc-a0161fdfb16b" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/rag-service/app/main.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-    </list>
+    <list default="true" id="7e26b689-7355-41c9-9edc-a0161fdfb16b" name="Changes" comment="" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -78,6 +75,7 @@
       <workItem from="1781873284812" duration="130000" />
       <workItem from="1781969742149" duration="587000" />
       <workItem from="1782065383095" duration="307000" />
+      <workItem from="1782067399238" duration="3000" />
     </task>
     <servers />
   </component>
