@@ -86,6 +86,17 @@ services:
     volumes:
      - qdrant_storage:/qdrant/storage
 
+  prometheus:
+    image: prom/prometheus
+
+    container_name: prometheus
+
+    ports:
+      - "9090:9090"
+
+    volumes:
+      - ./observability/prometheus.yml:/etc/prometheus/prometheus.yml
+
 
 
 volumes:
