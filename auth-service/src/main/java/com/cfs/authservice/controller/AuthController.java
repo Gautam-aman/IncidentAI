@@ -6,6 +6,7 @@ import com.cfs.authservice.dto.LogoutRequest;
 import com.cfs.authservice.dto.MessageResponse;
 import com.cfs.authservice.dto.RefreshTokenRequest;
 import com.cfs.authservice.dto.RegisterRequest;
+import com.cfs.authservice.dto.UserProfileResponse;
 import com.cfs.authservice.service.AuthService;
 import jakarta.validation.Valid;
 import lombok.Getter;
@@ -41,7 +42,7 @@ public class AuthController {
 	}
 
 	@GetMapping("/me")
-	public String currentUser(Authentication authentication){
+	public UserProfileResponse currentUser(Authentication authentication){
 		return authService.me(authentication.getName());
 	}
 

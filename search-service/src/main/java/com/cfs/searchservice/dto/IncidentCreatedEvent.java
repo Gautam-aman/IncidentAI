@@ -19,5 +19,11 @@ public class IncidentCreatedEvent {
 
 	private String title;
 
+	private String description;
+
 	private String priority;
+
+	private String severity;
+
+	private String status;
 }

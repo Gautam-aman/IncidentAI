@@ -26,7 +26,10 @@ public class IncidentCreatedConsumer {
 				IncidentDocument.builder()
 						.id(event.getIncidentId().toString())
 						.title(event.getTitle())
+						.description(event.getDescription())
 						.priority(event.getPriority())
+						.severity(event.getSeverity())
+						.status(event.getStatus())
 						.build();
 
 		searchService.index(document);

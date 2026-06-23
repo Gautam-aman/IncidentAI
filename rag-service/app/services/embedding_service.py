@@ -1,8 +1,15 @@
 from sentence_transformers import SentenceTransformer
 
-model = SentenceTransformer(
-    "all-MiniLM-L6-v2"
-)
+MODEL_NAME = "all-MiniLM-L6-v2"
+_model = None
 
-def embed(text: str):
-    return model.encode(text)
+
+def get_model():
+    global _model
+    if _model is None:
+        _model = SentenceTransformer(MODEL_NAME)
+    return _model
+
+
+def embed(text: str) -> list[float]:
+    return get_model().encode(text).tolist()

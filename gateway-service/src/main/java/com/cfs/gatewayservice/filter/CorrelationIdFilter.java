@@ -19,14 +19,10 @@ public class CorrelationIdFilter
 		String correlationId =
 				UUID.randomUUID().toString();
 
-		exchange.getRequest()
-				.mutate()
-				.header(
-						"X-Correlation-ID",
-						correlationId
-				)
+		ServerWebExchange mutatedExchange = exchange.mutate()
+				.request(request -> request.header("X-Correlation-ID", correlationId))
 				.build();
 
-		return chain.filter(exchange);
+		return chain.filter(mutatedExchange);
 	}
 }

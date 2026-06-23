@@ -7,19 +7,71 @@ spring:
 
   cloud:
     gateway:
+      server:
+        webflux:
 
-      routes:
+          routes:
 
-        - id: chat-service
+            - id: chat-service
 
-          uri: http://localhost:8086
+              uri: ${CHAT_SERVICE_URI:http://localhost:8086}
 
-          predicates:
-            - Path=/ws/**,/api/chat/**
+              predicates:
+                - Path=/ws/**,/api/chat/**
 
-        - id: auth-service
+            - id: auth-service
 
-          uri: http://localhost:8081
+              uri: ${AUTH_SERVICE_URI:http://localhost:8081}
 
-          predicates:
-            - Path=/api/auth/**
+              predicates:
+                - Path=/api/auth/**
+
+            - id: ticket-service
+
+              uri: ${TICKET_SERVICE_URI:http://localhost:8082}
+
+              predicates:
+                - Path=/api/incidents/**
+
+            - id: search-service
+
+              uri: ${SEARCH_SERVICE_URI:http://localhost:8085}
+
+              predicates:
+                - Path=/api/search/**
+
+            - id: notification-service
+
+              uri: ${NOTIFICATION_SERVICE_URI:http://localhost:8084}
+
+              predicates:
+                - Path=/api/notifications/**
+
+            - id: rag-service
+
+              uri: ${RAG_SERVICE_URI:http://localhost:8000}
+
+              predicates:
+                - Path=/api/upload,/api/ask
+
+management:
+  prometheus:
+    metrics:
+      export:
+        enabled: true
+  tracing:
+    sampling:
+      probability: 1.0
+    otlp:
+      tracing:
+        endpoint: ${MANAGEMENT_OTLP_TRACING_ENDPOINT:http://localhost:4318/v1/traces}
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,prometheus
+  endpoint:
+    health:
+      show-details: always
+  metrics:
+    tags:
+      application: gateway-service

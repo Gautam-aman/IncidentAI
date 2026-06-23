@@ -46,7 +46,10 @@ public class IncidentService {
 				IncidentCreatedEvent.builder()
 						.incidentId(saved.getId())
 						.title(saved.getTitle())
+						.description(saved.getDescription())
 						.priority(saved.getPriority())
+						.severity(saved.getSeverity() == null ? null : saved.getSeverity().name())
+						.status(saved.getStatus().name())
 						.build()
 		);
 		auditService.log(saved.getId() , saved.getReporterId() , "INCIDENT_CREATED",

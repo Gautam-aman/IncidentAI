@@ -14,5 +14,8 @@ public class IncidentCreatedEvent {
 
 	private UUID incidentId;
 	private String title;
+	private String description;
 	private String priority;
+	private String severity;
+	private String status;
 }

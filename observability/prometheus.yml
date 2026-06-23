@@ -9,7 +9,7 @@ scrape_configs:
 
     static_configs:
       - targets:
-          - host.docker.internal:8082
+          - ticket-service:8082
 
   - job_name: auth-service
 
@@ -17,7 +17,7 @@ scrape_configs:
 
     static_configs:
       - targets:
-          - host.docker.internal:8081
+          - auth-service:8081
 
   - job_name: gateway-service
 
@@ -25,4 +25,28 @@ scrape_configs:
 
     static_configs:
       - targets:
-          - host.docker.internal:8080
+          - gateway-service:8080
+
+  - job_name: search-service
+
+    metrics_path: /actuator/prometheus
+
+    static_configs:
+      - targets:
+          - search-service:8085
+
+  - job_name: notification-service
+
+    metrics_path: /actuator/prometheus
+
+    static_configs:
+      - targets:
+          - notification-service:8084
+
+  - job_name: chat-service
+
+    metrics_path: /actuator/prometheus
+
+    static_configs:
+      - targets:
+          - chat-service:8086

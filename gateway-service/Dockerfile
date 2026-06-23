@@ -1,8 +1,16 @@
-FROM eclipse-temurin:21-jdk
+FROM maven:3.9.11-eclipse-temurin-21 AS build
+
+WORKDIR /workspace
+
+COPY pom.xml .
+COPY src ./src
+RUN mvn -q -DskipTests package
+
+FROM eclipse-temurin:21-jre
 
 WORKDIR /app
 
-COPY target/gateway-service.jar app.jar
+COPY --from=build /workspace/target/gateway-service-0.0.1-SNAPSHOT.jar app.jar
 
 EXPOSE 8080
 
