@@ -122,6 +122,15 @@ services:
 
     depends_on:
       - elasticsearch
+  jaeger:
+
+    image: jaegertracing/all-in-one:1.57
+
+    container_name: jaeger
+
+    ports:
+      - "16686:16686"
+      - "4318:4318"
 
 
 
