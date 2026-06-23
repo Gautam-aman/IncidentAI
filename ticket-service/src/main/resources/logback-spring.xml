@@ -1,0 +1,23 @@
+<configuration>
+
+	<property
+			name="PATTERN"
+			value="%d %-5level [%X{correlationId}] %logger - %msg%n"/>
+
+	<appender
+			name="CONSOLE"
+			class="ch.qos.logback.core.ConsoleAppender">
+
+		<encoder>
+			<pattern>${PATTERN}</pattern>
+		</encoder>
+
+	</appender>
+
+	<root level="INFO">
+
+		<appender-ref ref="CONSOLE"/>
+
+	</root>
+
+</configuration>
