@@ -9,7 +9,7 @@ import com.cfs.authservice.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface RefreshTokenRepository extends JpaRepository<RefreshToken, UUID> {
-	Optional<RefreshToken> findByRefreshToken(String refreshToken);
-	Optional<RefreshToken> findByUser(String token);
-	void deleteByUser(User User);
+	Optional<RefreshToken> findByToken(String token);
+	Optional<RefreshToken> findByUser(User user);
+	void deleteByUser(User user);
 }

@@ -20,5 +20,6 @@ public class CreateIncidentRequest {
 
 	private Severity severity;
 
+	@NotBlank
 	private String reporterId;
 }

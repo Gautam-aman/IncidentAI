@@ -117,7 +117,7 @@ public class AuthService {
 
 	public AuthResponse refreshToken(RefreshTokenRequest refreshTokenRequest) {
 		RefreshToken token =
-				refreshTokenRepository.findByRefreshToken(
+				refreshTokenRepository.findByToken(
 								refreshTokenRequest.getRefreshToken()
 						)
 						.orElseThrow(() ->
@@ -181,17 +181,20 @@ public class AuthService {
 				.build();
 	}
 
-	public MessageResponse logout(String refreshToken) {
+	public MessageResponse logout(String refreshToken, String accessToken) {
 		RefreshToken token =
-				refreshTokenRepository.findByRefreshToken(refreshToken)
+				refreshTokenRepository.findByToken(refreshToken)
 						.orElseThrow(() ->
 								new RuntimeException("Invalid refresh token"));
 
 		token.setRevoked(true);
-		tokenBlacklistService.blacklistToken(
-				refreshToken,
-				15 * 60 * 1000
-		);
+		long remainingAccessTokenTtl = jwtUtil.getRemainingExpirationMillis(accessToken);
+		if (remainingAccessTokenTtl > 0) {
+			tokenBlacklistService.blacklistToken(
+					accessToken,
+					remainingAccessTokenTtl
+			);
+		}
 		refreshTokenRepository.save(token);
 		return new MessageResponse("Logout successfully");
 

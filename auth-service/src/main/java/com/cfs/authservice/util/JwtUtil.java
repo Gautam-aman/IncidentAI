@@ -48,6 +48,10 @@ public class JwtUtil {
 		return extractClaim(token, Claims::getExpiration);
 	}
 
+	public long getRemainingExpirationMillis(String token) {
+		return extractExpiration(token).getTime() - System.currentTimeMillis();
+	}
+
 	public <T> T extractClaim(String token, Function<Claims, T> resolver) {
 		Claims claims = extractAllClaims(token);
 		return resolver.apply(claims);

@@ -4,6 +4,7 @@ import java.io.IOException;
 
 import com.cfs.authservice.service.TokenBlacklistService;
 import com.cfs.authservice.util.JwtUtil;
+import io.jsonwebtoken.JwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -39,7 +40,19 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
 		// extract jwt
 		jwt = authHeader.substring(7);
-		email = jwtUtil.extractSubject(jwt);
+
+		if (tokenBlacklistService.isBlacklisted(jwt)) {
+			response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+			return;
+		}
+
+		try {
+			email = jwtUtil.extractSubject(jwt);
+		}
+		catch (JwtException | IllegalArgumentException ex) {
+			response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+			return;
+		}
 
 		if (email != null && SecurityContextHolder.getContext().getAuthentication() == null) {
 			UserDetails userDetails = userDetailsService.loadUserByUsername(email);
@@ -49,10 +62,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 				SecurityContextHolder.getContext().setAuthentication(authentication);
 			}
 		}
-		if (tokenBlacklistService.isBlacklisted(jwt)) {
-			filterChain.doFilter(request, response);
-			return;
-		}
+
 		filterChain.doFilter(request, response);
 	}
 }

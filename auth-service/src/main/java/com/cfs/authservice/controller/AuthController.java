@@ -13,6 +13,7 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
 import org.springframework.security.core.Authentication;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -48,10 +49,13 @@ public class AuthController {
 
 	@PostMapping("/logout")
 	public MessageResponse logout(
-			@Valid @RequestBody LogoutRequest request
+			@Valid @RequestBody LogoutRequest request,
+			@RequestHeader("Authorization") String authorizationHeader
 	) {
+		String accessToken = authorizationHeader.substring(7);
 		return authService.logout(
-				request.getRefreshToken()
+				request.getRefreshToken(),
+				accessToken
 		);
 	}
 

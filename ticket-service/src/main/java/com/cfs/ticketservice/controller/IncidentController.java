@@ -46,7 +46,7 @@ public class IncidentController {
 	@PutMapping("/{id}/assign")
 	public Incident assign(
 			@PathVariable UUID id,
-			@RequestBody AssignIncidentRequest request
+			@Valid @RequestBody AssignIncidentRequest request
 	) {
 		return incidentService.assign(id, request);
 	}
@@ -54,7 +54,7 @@ public class IncidentController {
 	@PutMapping("/{id}/status")
 	public Incident updateStatus(
 			@PathVariable UUID id,
-			@RequestBody UpdateStatusRequest request
+			@Valid @RequestBody UpdateStatusRequest request
 	) {
 		return incidentService.updateStatus(id, request);
 	}
@@ -62,7 +62,7 @@ public class IncidentController {
 	@PostMapping("/{id}/comments")
 	public IncidentComment addComment(
 			@PathVariable UUID id,
-			@RequestBody AddCommentRequest request
+			@Valid @RequestBody AddCommentRequest request
 	) {
 		return incidentService.addComment(id, request);
 	}
