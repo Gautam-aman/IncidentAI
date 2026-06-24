@@ -21,8 +21,10 @@
         <button class="nav-item active" data-view="overview" type="button">Overview</button>
         <button class="nav-item" data-view="auth" type="button">Auth</button>
         <button class="nav-item" data-view="incidents" type="button">Incidents</button>
+        <button class="nav-item" data-view="chat" type="button">Chat</button>
         <button class="nav-item" data-view="assistant" type="button">AI Assistant</button>
         <button class="nav-item" data-view="search" type="button">Search</button>
+        <button class="nav-item" data-view="monitoring" type="button">Monitoring</button>
       </nav>
 
       <div class="system-panel">
@@ -243,6 +245,51 @@
         </div>
       </section>
 
+      <section id="view-chat" class="view">
+        <div class="two-column chat-layout">
+          <section class="panel">
+            <div class="panel-header">
+              <h2>Incident Room</h2>
+              <span id="chatState" class="status-pill">Disconnected</span>
+            </div>
+            <form id="chatConnectForm" class="stack-form">
+              <label>
+                <span>Incident ID</span>
+                <input name="incidentId" id="chatIncidentId" required placeholder="Paste incident ID">
+              </label>
+              <div class="inline-action">
+                <button class="primary-button" type="submit">Connect</button>
+                <button id="disconnectChatBtn" class="ghost-button" type="button">Disconnect</button>
+              </div>
+            </form>
+          </section>
+
+          <section class="panel">
+            <div class="panel-header">
+              <h2>Message</h2>
+            </div>
+            <form id="chatMessageForm" class="stack-form">
+              <label>
+                <span>Sender</span>
+                <input name="senderName" id="chatSenderName" placeholder="Operator">
+              </label>
+              <label>
+                <span>Content</span>
+                <textarea name="content" rows="4" required placeholder="Share an update"></textarea>
+              </label>
+              <button class="secondary-button" type="submit">Send message</button>
+            </form>
+          </section>
+        </div>
+        <section class="panel chat-panel">
+          <div class="panel-header">
+            <h2>Live Messages</h2>
+            <button id="clearChatBtn" class="ghost-button" type="button">Clear</button>
+          </div>
+          <div id="chatMessages" class="chat-messages"></div>
+        </section>
+      </section>
+
       <section id="view-search" class="view">
         <section class="panel">
           <div class="panel-header">
@@ -253,6 +300,65 @@
             <button class="primary-button" type="submit">Search</button>
           </form>
         </section>
+      </section>
+
+      <section id="view-monitoring" class="view">
+        <div class="metrics-grid">
+          <article class="metric-card">
+            <span>Metrics</span>
+            <strong>Prometheus</strong>
+          </article>
+          <article class="metric-card">
+            <span>Dashboards</span>
+            <strong>Grafana</strong>
+          </article>
+          <article class="metric-card">
+            <span>Tracing</span>
+            <strong>Jaeger</strong>
+          </article>
+        </div>
+
+        <div class="monitor-grid">
+          <section class="panel">
+            <div class="panel-header">
+              <h2>Observability</h2>
+            </div>
+            <div class="link-grid">
+              <a href="http://localhost:3000" target="_blank" rel="noreferrer">Grafana</a>
+              <a href="http://localhost:9090" target="_blank" rel="noreferrer">Prometheus</a>
+              <a href="http://localhost:16686" target="_blank" rel="noreferrer">Jaeger</a>
+              <a href="http://localhost:5601" target="_blank" rel="noreferrer">Kibana</a>
+            </div>
+          </section>
+
+          <section class="panel">
+            <div class="panel-header">
+              <h2>Service Health</h2>
+              <button id="checkHealthBtn" class="ghost-button" type="button">Check</button>
+            </div>
+            <div id="healthGrid" class="health-grid">
+              <a href="http://localhost:8080/actuator/health" target="_blank" rel="noreferrer">Gateway</a>
+              <a href="http://localhost:8081/actuator/health" target="_blank" rel="noreferrer">Auth</a>
+              <a href="http://localhost:8082/actuator/health" target="_blank" rel="noreferrer">Ticket</a>
+              <a href="http://localhost:8084/actuator/health" target="_blank" rel="noreferrer">Notification</a>
+              <a href="http://localhost:8085/actuator/health" target="_blank" rel="noreferrer">Search</a>
+              <a href="http://localhost:8086/actuator/health" target="_blank" rel="noreferrer">Chat</a>
+              <a href="http://localhost:8000" target="_blank" rel="noreferrer">RAG</a>
+            </div>
+          </section>
+
+          <section class="panel">
+            <div class="panel-header">
+              <h2>Metrics Endpoints</h2>
+            </div>
+            <div class="link-grid">
+              <a href="http://localhost:8080/actuator/prometheus" target="_blank" rel="noreferrer">Gateway metrics</a>
+              <a href="http://localhost:8081/actuator/prometheus" target="_blank" rel="noreferrer">Auth metrics</a>
+              <a href="http://localhost:8082/actuator/prometheus" target="_blank" rel="noreferrer">Ticket metrics</a>
+              <a href="http://localhost:8085/actuator/prometheus" target="_blank" rel="noreferrer">Search metrics</a>
+            </div>
+          </section>
+        </div>
       </section>
 
       <section class="result-dock" aria-live="polite">

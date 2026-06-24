@@ -26,6 +26,48 @@ spring:
 
           routes:
 
+            - id: auth-health
+              uri: ${AUTH_SERVICE_URI:http://localhost:8081}
+              predicates:
+                - Path=/monitor/auth/health
+              filters:
+                - SetPath=/actuator/health
+
+            - id: ticket-health
+              uri: ${TICKET_SERVICE_URI:http://localhost:8082}
+              predicates:
+                - Path=/monitor/ticket/health
+              filters:
+                - SetPath=/actuator/health
+
+            - id: search-health
+              uri: ${SEARCH_SERVICE_URI:http://localhost:8085}
+              predicates:
+                - Path=/monitor/search/health
+              filters:
+                - SetPath=/actuator/health
+
+            - id: notification-health
+              uri: ${NOTIFICATION_SERVICE_URI:http://localhost:8084}
+              predicates:
+                - Path=/monitor/notification/health
+              filters:
+                - SetPath=/actuator/health
+
+            - id: chat-health
+              uri: ${CHAT_SERVICE_URI:http://localhost:8086}
+              predicates:
+                - Path=/monitor/chat/health
+              filters:
+                - SetPath=/actuator/health
+
+            - id: rag-health
+              uri: ${RAG_SERVICE_URI:http://localhost:8000}
+              predicates:
+                - Path=/monitor/rag/health
+              filters:
+                - SetPath=/
+
             - id: chat-service
 
               uri: ${CHAT_SERVICE_URI:http://localhost:8086}

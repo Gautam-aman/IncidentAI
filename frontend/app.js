@@ -3,14 +3,20 @@ const state = {
   refreshToken: localStorage.getItem("incidentai.refreshToken") || "",
   user: JSON.parse(localStorage.getItem("incidentai.user") || "null"),
   currentIncidentId: "",
+  chatSocket: null,
+  chatConnected: false,
+  chatIncidentId: "",
+  stompSubscriptionId: "incident-room",
 };
 
 const pageTitles = {
   overview: "Overview",
   auth: "Auth",
   incidents: "Incidents",
+  chat: "Chat",
   assistant: "AI Assistant",
   search: "Search",
+  monitoring: "Monitoring",
 };
 
 const $ = (selector) => document.querySelector(selector);
@@ -81,6 +87,97 @@ function updateSession() {
 
 function formData(form) {
   return Object.fromEntries(new FormData(form).entries());
+}
+
+function websocketUrl() {
+  return gatewayUrl().replace(/^http/, "ws") + "/ws/native";
+}
+
+function stompFrame(command, headersMap = {}, body = "") {
+  const headerLines = Object.entries(headersMap).map(([key, value]) => `${key}:${value}`);
+  return `${command}\n${headerLines.join("\n")}\n\n${body}\0`;
+}
+
+function sendStomp(command, headersMap = {}, body = "") {
+  if (!state.chatSocket || state.chatSocket.readyState !== WebSocket.OPEN) {
+    throw new Error("Chat is not connected.");
+  }
+  state.chatSocket.send(stompFrame(command, headersMap, body));
+}
+
+function setChatState(connected) {
+  state.chatConnected = connected;
+  const badge = $("#chatState");
+  badge.textContent = connected ? "Connected" : "Disconnected";
+  badge.classList.toggle("connected", connected);
+}
+
+function addChatMessage(message) {
+  const list = $("#chatMessages");
+  const empty = list.querySelector(".chat-empty");
+  if (empty) empty.remove();
+
+  const item = document.createElement("article");
+  item.className = "chat-message";
+  const sentAt = new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+  item.innerHTML = `
+    <header>
+      <strong></strong>
+      <span>${sentAt}</span>
+    </header>
+    <p></p>
+  `;
+  item.querySelector("strong").textContent = message.senderName || "Operator";
+  item.querySelector("p").textContent = message.content || "";
+  list.appendChild(item);
+  list.scrollTop = list.scrollHeight;
+}
+
+function resetChatMessages() {
+  $("#chatMessages").innerHTML = '<div class="chat-empty">No messages yet.</div>';
+}
+
+function handleStompData(data) {
+  const frames = data.split("\0").filter(Boolean);
+  frames.forEach((frame) => {
+    const [headerBlock, body = ""] = frame.split("\n\n");
+    const command = headerBlock.split("\n")[0];
+
+    if (command === "CONNECTED") {
+      sendStomp("SUBSCRIBE", {
+        id: state.stompSubscriptionId,
+        destination: `/topic/incidents/${state.chatIncidentId}`,
+      });
+      setChatState(true);
+      print(`Connected to incident chat ${state.chatIncidentId}.`);
+      return;
+    }
+
+    if (command === "MESSAGE") {
+      try {
+        addChatMessage(JSON.parse(body));
+      } catch {
+        addChatMessage({ senderName: "System", content: body });
+      }
+    }
+
+    if (command === "ERROR") {
+      print(body || "Chat connection error.");
+    }
+  });
+}
+
+function disconnectChat() {
+  if (state.chatSocket && state.chatSocket.readyState === WebSocket.OPEN) {
+    try {
+      sendStomp("DISCONNECT");
+    } catch {
+      // Socket is already closing.
+    }
+    state.chatSocket.close();
+  }
+  state.chatSocket = null;
+  setChatState(false);
 }
 
 async function createIncident(form) {
@@ -255,4 +352,82 @@ $("#searchForm").addEventListener("submit", async (event) => {
   }
 });
 
+$("#chatConnectForm").addEventListener("submit", (event) => {
+  event.preventDefault();
+  const { incidentId } = formData(event.currentTarget);
+  disconnectChat();
+
+  state.chatIncidentId = incidentId;
+  state.currentIncidentId = incidentId;
+  state.chatSocket = new WebSocket(websocketUrl());
+
+  state.chatSocket.addEventListener("open", () => {
+    sendStomp("CONNECT", {
+      "accept-version": "1.2",
+      host: window.location.host,
+    });
+  });
+
+  state.chatSocket.addEventListener("message", (message) => handleStompData(message.data));
+  state.chatSocket.addEventListener("close", () => setChatState(false));
+  state.chatSocket.addEventListener("error", () => print("Chat connection failed. Check that gateway and chat-service are running."));
+});
+
+$("#disconnectChatBtn").addEventListener("click", () => {
+  disconnectChat();
+  print("Chat disconnected.");
+});
+
+$("#clearChatBtn").addEventListener("click", resetChatMessages);
+
+$("#chatMessageForm").addEventListener("submit", (event) => {
+  event.preventDefault();
+  try {
+    if (!state.chatConnected) throw new Error("Connect to an incident room first.");
+    const data = formData(event.currentTarget);
+    const message = {
+      incidentId: state.chatIncidentId,
+      senderId: state.user?.userId || "anonymous",
+      senderName: data.senderName || state.user?.email || "Operator",
+      content: data.content,
+      type: "CHAT",
+    };
+
+    sendStomp("SEND", {
+      destination: "/app/chat.send",
+      "content-type": "application/json",
+    }, JSON.stringify(message));
+    event.currentTarget.reset();
+    $("#chatSenderName").value = state.user?.email || "";
+  } catch (error) {
+    print(error.message);
+  }
+});
+
+$("#checkHealthBtn").addEventListener("click", async () => {
+  const services = [
+    ["Gateway", `${gatewayUrl()}/actuator/health`],
+    ["Auth", `${gatewayUrl()}/monitor/auth/health`],
+    ["Ticket", `${gatewayUrl()}/monitor/ticket/health`],
+    ["Notification", `${gatewayUrl()}/monitor/notification/health`],
+    ["Search", `${gatewayUrl()}/monitor/search/health`],
+    ["Chat", `${gatewayUrl()}/monitor/chat/health`],
+    ["RAG", `${gatewayUrl()}/monitor/rag/health`],
+  ];
+
+  const results = await Promise.allSettled(
+    services.map(async ([name, url]) => {
+      const response = await fetch(url);
+      return [name, response.ok ? "UP" : "DOWN"];
+    })
+  );
+
+  $("#healthGrid").innerHTML = results.map((result, index) => {
+    const name = services[index][0];
+    const status = result.status === "fulfilled" ? result.value[1] : "DOWN";
+    return `<div class="health-card ${status === "UP" ? "up" : "down"}">${name}<span>${status}</span></div>`;
+  }).join("");
+});
+
 updateSession();
+resetChatMessages();
