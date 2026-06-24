@@ -1,0 +1,270 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>IncidentAI Console</title>
+  <link rel="stylesheet" href="./styles.css">
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar">
+      <div class="brand">
+        <span class="brand-mark">IA</span>
+        <div>
+          <strong>IncidentAI</strong>
+          <span>Operations console</span>
+        </div>
+      </div>
+
+      <nav class="nav" aria-label="Primary">
+        <button class="nav-item active" data-view="overview" type="button">Overview</button>
+        <button class="nav-item" data-view="auth" type="button">Auth</button>
+        <button class="nav-item" data-view="incidents" type="button">Incidents</button>
+        <button class="nav-item" data-view="assistant" type="button">AI Assistant</button>
+        <button class="nav-item" data-view="search" type="button">Search</button>
+      </nav>
+
+      <div class="system-panel">
+        <span>Gateway</span>
+        <input id="gatewayUrl" value="http://localhost:8080" aria-label="Gateway URL">
+      </div>
+    </aside>
+
+    <main class="workspace">
+      <header class="topbar">
+        <div>
+          <p class="eyebrow">Incident Management</p>
+          <h1 id="pageTitle">Overview</h1>
+        </div>
+        <div class="session">
+          <span id="sessionEmail">Not signed in</span>
+          <button id="logoutBtn" class="ghost-button" type="button">Sign out</button>
+        </div>
+      </header>
+
+      <section id="view-overview" class="view active">
+        <div class="metrics-grid">
+          <article class="metric-card">
+            <span>Auth</span>
+            <strong id="authState">Signed out</strong>
+          </article>
+          <article class="metric-card">
+            <span>Last incident</span>
+            <strong id="lastIncident">None</strong>
+          </article>
+          <article class="metric-card">
+            <span>RAG context</span>
+            <strong id="ragState">Idle</strong>
+          </article>
+        </div>
+
+        <div class="overview-grid">
+          <section class="panel">
+            <div class="panel-header">
+              <h2>Quick Create</h2>
+            </div>
+            <form id="quickIncidentForm" class="form-grid">
+              <label>
+                <span>Title</span>
+                <input name="title" required placeholder="Payment service latency">
+              </label>
+              <label>
+                <span>Priority</span>
+                <select name="priority">
+                  <option>LOW</option>
+                  <option selected>MEDIUM</option>
+                  <option>HIGH</option>
+                  <option>CRITICAL</option>
+                </select>
+              </label>
+              <label>
+                <span>Severity</span>
+                <select name="severity">
+                  <option>P4</option>
+                  <option selected>P3</option>
+                  <option>P2</option>
+                  <option>P1</option>
+                </select>
+              </label>
+              <label class="span-2">
+                <span>Description</span>
+                <textarea name="description" rows="4" placeholder="Impact, start time, systems involved"></textarea>
+              </label>
+              <button class="primary-button span-2" type="submit">Create incident</button>
+            </form>
+          </section>
+
+          <section class="panel visual-panel">
+            <div class="panel-header">
+              <h2>Service Map</h2>
+            </div>
+            <img src="../ControlFlow.png" alt="IncidentAI service flow">
+          </section>
+        </div>
+      </section>
+
+      <section id="view-auth" class="view">
+        <div class="two-column">
+          <section class="panel">
+            <div class="panel-header">
+              <h2>Sign In</h2>
+            </div>
+            <form id="loginForm" class="stack-form">
+              <label>
+                <span>Email</span>
+                <input name="email" type="email" required placeholder="you@example.com">
+              </label>
+              <label>
+                <span>Password</span>
+                <input name="password" type="password" required placeholder="Minimum 6 characters">
+              </label>
+              <button class="primary-button" type="submit">Sign in</button>
+            </form>
+          </section>
+
+          <section class="panel">
+            <div class="panel-header">
+              <h2>Register</h2>
+            </div>
+            <form id="registerForm" class="stack-form">
+              <label>
+                <span>Name</span>
+                <input name="name" required placeholder="Alex Morgan">
+              </label>
+              <label>
+                <span>Email</span>
+                <input name="email" type="email" required placeholder="alex@example.com">
+              </label>
+              <label>
+                <span>Password</span>
+                <input name="password" type="password" minlength="6" required placeholder="Minimum 6 characters">
+              </label>
+              <button class="secondary-button" type="submit">Create account</button>
+            </form>
+          </section>
+        </div>
+      </section>
+
+      <section id="view-incidents" class="view">
+        <div class="two-column">
+          <section class="panel">
+            <div class="panel-header">
+              <h2>Create Incident</h2>
+            </div>
+            <form id="incidentForm" class="stack-form">
+              <label>
+                <span>Title</span>
+                <input name="title" required>
+              </label>
+              <label>
+                <span>Description</span>
+                <textarea name="description" rows="4"></textarea>
+              </label>
+              <div class="inline-fields">
+                <label>
+                  <span>Priority</span>
+                  <select name="priority">
+                    <option>LOW</option>
+                    <option>MEDIUM</option>
+                    <option>HIGH</option>
+                    <option>CRITICAL</option>
+                  </select>
+                </label>
+                <label>
+                  <span>Severity</span>
+                  <select name="severity">
+                    <option>P4</option>
+                    <option>P3</option>
+                    <option>P2</option>
+                    <option>P1</option>
+                  </select>
+                </label>
+              </div>
+              <label>
+                <span>Reporter ID</span>
+                <input name="reporterId" id="reporterId">
+              </label>
+              <button class="primary-button" type="submit">Create incident</button>
+            </form>
+          </section>
+
+          <section class="panel">
+            <div class="panel-header">
+              <h2>Lookup & Update</h2>
+            </div>
+            <form id="lookupForm" class="stack-form compact">
+              <label>
+                <span>Incident ID</span>
+                <input name="incidentId" required>
+              </label>
+              <button class="secondary-button" type="submit">Load incident</button>
+            </form>
+            <form id="statusForm" class="inline-action">
+              <select name="status" aria-label="Status">
+                <option>OPEN</option>
+                <option>IN_PROGRESS</option>
+                <option>RESOLVED</option>
+                <option>CLOSED</option>
+              </select>
+              <button class="ghost-button" type="submit">Update status</button>
+            </form>
+          </section>
+        </div>
+      </section>
+
+      <section id="view-assistant" class="view">
+        <div class="two-column">
+          <section class="panel">
+            <div class="panel-header">
+              <h2>Upload Context</h2>
+            </div>
+            <form id="uploadForm" class="stack-form">
+              <label class="file-drop">
+                <span>PDF or text file</span>
+                <input name="file" type="file" required>
+              </label>
+              <button class="secondary-button" type="submit">Index file</button>
+            </form>
+          </section>
+
+          <section class="panel">
+            <div class="panel-header">
+              <h2>Ask</h2>
+            </div>
+            <form id="askForm" class="stack-form">
+              <label>
+                <span>Question</span>
+                <textarea name="question" rows="5" required placeholder="What should we check first?"></textarea>
+              </label>
+              <button class="primary-button" type="submit">Ask assistant</button>
+            </form>
+          </section>
+        </div>
+      </section>
+
+      <section id="view-search" class="view">
+        <section class="panel">
+          <div class="panel-header">
+            <h2>Incident Search</h2>
+          </div>
+          <form id="searchForm" class="search-row">
+            <input name="query" required placeholder="Search title or description">
+            <button class="primary-button" type="submit">Search</button>
+          </form>
+        </section>
+      </section>
+
+      <section class="result-dock" aria-live="polite">
+        <div class="panel-header">
+          <h2>Response</h2>
+          <button id="clearOutput" class="ghost-button" type="button">Clear</button>
+        </div>
+        <pre id="output">Ready.</pre>
+      </section>
+    </main>
+  </div>
+
+  <script src="./app.js"></script>
+</body>
+</html>
