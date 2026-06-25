@@ -431,3 +431,216 @@ $("#checkHealthBtn").addEventListener("click", async () => {
 
 updateSession();
 resetChatMessages();
+
+function drawCanvasFallback(canvas) {
+  const context = canvas.getContext("2d");
+  if (!context) return;
+
+  const nodes = [
+    [0.18, 0.24],
+    [0.42, 0.16],
+    [0.68, 0.26],
+    [0.78, 0.56],
+    [0.48, 0.72],
+    [0.22, 0.62],
+  ];
+
+  function resize() {
+    const scale = window.devicePixelRatio || 1;
+    canvas.width = Math.floor(window.innerWidth * scale);
+    canvas.height = Math.floor(window.innerHeight * scale);
+    canvas.style.width = `${window.innerWidth}px`;
+    canvas.style.height = `${window.innerHeight}px`;
+    context.setTransform(scale, 0, 0, scale, 0, 0);
+  }
+
+  function render(time = 0) {
+    const width = window.innerWidth;
+    const height = window.innerHeight;
+    context.clearRect(0, 0, width, height);
+    context.lineWidth = 1;
+
+    nodes.forEach(([x, y], index) => {
+      const next = nodes[(index + 1) % nodes.length];
+      context.strokeStyle = "rgba(92, 220, 210, 0.22)";
+      context.beginPath();
+      context.moveTo(x * width, y * height);
+      context.lineTo(next[0] * width, next[1] * height);
+      context.stroke();
+    });
+
+    nodes.forEach(([x, y], index) => {
+      const pulse = Math.sin(time * 0.002 + index) * 5;
+      context.fillStyle = index % 2 ? "rgba(197, 140, 46, 0.72)" : "rgba(54, 184, 199, 0.8)";
+      context.beginPath();
+      context.arc(x * width, y * height, 9 + pulse, 0, Math.PI * 2);
+      context.fill();
+    });
+
+    requestAnimationFrame(render);
+  }
+
+  resize();
+  window.addEventListener("resize", resize);
+  requestAnimationFrame(render);
+}
+
+async function initTopologyScene() {
+  const canvas = $("#topologyScene");
+  if (!canvas) return;
+
+  try {
+    const THREE = await Promise.race([
+      import("https://cdn.jsdelivr.net/npm/three@0.166.1/build/three.module.js"),
+      new Promise((_, reject) => {
+        window.setTimeout(() => reject(new Error("Three.js import timed out.")), 1200);
+      }),
+    ]);
+    const renderer = new THREE.WebGLRenderer({
+      canvas,
+      antialias: true,
+      alpha: true,
+      preserveDrawingBuffer: true,
+    });
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+
+    const scene = new THREE.Scene();
+    const camera = new THREE.PerspectiveCamera(42, window.innerWidth / window.innerHeight, 0.1, 100);
+    camera.position.set(0, 3.4, 8.5);
+    camera.lookAt(0, 0, 0);
+
+    const group = new THREE.Group();
+    scene.add(group);
+
+    const ambient = new THREE.AmbientLight(0xffffff, 0.65);
+    scene.add(ambient);
+
+    const keyLight = new THREE.PointLight(0x73fff0, 2.2, 18);
+    keyLight.position.set(-4, 3, 4);
+    scene.add(keyLight);
+
+    const warmLight = new THREE.PointLight(0xffb34d, 1.5, 16);
+    warmLight.position.set(4, -1, 2);
+    scene.add(warmLight);
+
+    const nodeGeometry = new THREE.IcosahedronGeometry(0.18, 2);
+    const tealMaterial = new THREE.MeshStandardMaterial({
+      color: 0x45d8cb,
+      emissive: 0x0d625a,
+      metalness: 0.3,
+      roughness: 0.28,
+    });
+    const amberMaterial = new THREE.MeshStandardMaterial({
+      color: 0xd49a3a,
+      emissive: 0x70440b,
+      metalness: 0.35,
+      roughness: 0.32,
+    });
+
+    const positions = [
+      [-2.7, 0.4, 0.4],
+      [-1.1, 1.3, -0.4],
+      [0.8, 0.8, 0.2],
+      [2.4, 1.6, -0.8],
+      [2.8, -0.5, 0.5],
+      [0.6, -1.2, -0.2],
+      [-1.7, -1.0, 0.8],
+    ];
+
+    const nodes = positions.map((position, index) => {
+      const mesh = new THREE.Mesh(nodeGeometry, index % 3 === 0 ? amberMaterial : tealMaterial);
+      mesh.position.set(...position);
+      mesh.userData.baseY = position[1];
+      group.add(mesh);
+      return mesh;
+    });
+
+    const lineMaterial = new THREE.LineBasicMaterial({
+      color: 0x88fff1,
+      transparent: true,
+      opacity: 0.28,
+    });
+
+    const connections = [
+      [0, 1],
+      [1, 2],
+      [2, 3],
+      [3, 4],
+      [4, 5],
+      [5, 6],
+      [6, 0],
+      [1, 5],
+      [2, 6],
+      [0, 4],
+    ];
+
+    connections.forEach(([from, to]) => {
+      const points = [nodes[from].position, nodes[to].position];
+      const geometry = new THREE.BufferGeometry().setFromPoints(points);
+      group.add(new THREE.Line(geometry, lineMaterial));
+    });
+
+    const ringMaterial = new THREE.MeshBasicMaterial({
+      color: 0x55d9cf,
+      transparent: true,
+      opacity: 0.12,
+      side: THREE.DoubleSide,
+    });
+    const ring = new THREE.Mesh(new THREE.TorusGeometry(3.7, 0.008, 8, 180), ringMaterial);
+    ring.rotation.x = Math.PI / 2.8;
+    group.add(ring);
+
+    const particlesGeometry = new THREE.BufferGeometry();
+    const particleCount = 180;
+    const particlePositions = new Float32Array(particleCount * 3);
+    for (let index = 0; index < particleCount; index += 1) {
+      particlePositions[index * 3] = (Math.random() - 0.5) * 9;
+      particlePositions[index * 3 + 1] = (Math.random() - 0.5) * 5;
+      particlePositions[index * 3 + 2] = (Math.random() - 0.5) * 5;
+    }
+    particlesGeometry.setAttribute("position", new THREE.BufferAttribute(particlePositions, 3));
+    const particles = new THREE.Points(
+      particlesGeometry,
+      new THREE.PointsMaterial({
+        color: 0xa7fff7,
+        size: 0.025,
+        transparent: true,
+        opacity: 0.48,
+      })
+    );
+    scene.add(particles);
+
+    function resize() {
+      const width = window.innerWidth;
+      const height = window.innerHeight;
+      renderer.setSize(width, height, false);
+      camera.aspect = width / height;
+      camera.updateProjectionMatrix();
+    }
+
+    function animate(time = 0) {
+      const seconds = time * 0.001;
+      group.rotation.y = seconds * 0.08;
+      group.rotation.x = Math.sin(seconds * 0.18) * 0.08;
+      ring.rotation.z = seconds * 0.12;
+      particles.rotation.y = seconds * -0.025;
+
+      nodes.forEach((node, index) => {
+        node.position.y = node.userData.baseY + Math.sin(seconds * 1.4 + index) * 0.08;
+        node.rotation.x += 0.006;
+        node.rotation.y += 0.009;
+      });
+
+      renderer.render(scene, camera);
+      requestAnimationFrame(animate);
+    }
+
+    resize();
+    window.addEventListener("resize", resize);
+    requestAnimationFrame(animate);
+  } catch (error) {
+    drawCanvasFallback(canvas);
+  }
+}
+
+initTopologyScene();

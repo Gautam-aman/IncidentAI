@@ -7,6 +7,7 @@
   <link rel="stylesheet" href="./styles.css">
 </head>
 <body>
+  <canvas id="topologyScene" aria-hidden="true"></canvas>
   <div class="app-shell">
     <aside class="sidebar">
       <div class="brand">
@@ -30,6 +31,10 @@
       <div class="system-panel">
         <span>Gateway</span>
         <input id="gatewayUrl" value="http://localhost:8080" aria-label="Gateway URL">
+        <div class="system-signal">
+          <span></span>
+          <strong>Live command fabric</strong>
+        </div>
       </div>
     </aside>
 
@@ -46,6 +51,27 @@
       </header>
 
       <section id="view-overview" class="view active">
+        <section class="hero-panel">
+          <div class="hero-copy">
+            <p class="eyebrow">Distributed response console</p>
+            <h2>Coordinate incidents across services, signals, search, and AI context.</h2>
+          </div>
+          <div class="hero-telemetry" aria-label="Platform telemetry">
+            <div>
+              <span>Event Stream</span>
+              <strong>Kafka</strong>
+            </div>
+            <div>
+              <span>Vector Memory</span>
+              <strong>Qdrant</strong>
+            </div>
+            <div>
+              <span>Trace Fabric</span>
+              <strong>Jaeger</strong>
+            </div>
+          </div>
+        </section>
+
         <div class="metrics-grid">
           <article class="metric-card">
             <span>Auth</span>
@@ -101,7 +127,14 @@
             <div class="panel-header">
               <h2>Service Map</h2>
             </div>
-            <img src="../ControlFlow.png" alt="IncidentAI service flow">
+            <div class="service-map" aria-label="IncidentAI service flow">
+              <span class="service-node gateway-node">Gateway</span>
+              <span class="service-node auth-node">Auth</span>
+              <span class="service-node ticket-node">Ticket</span>
+              <span class="service-node search-node">Search</span>
+              <span class="service-node rag-node">RAG</span>
+              <span class="service-node event-node">Kafka</span>
+            </div>
           </section>
         </div>
       </section>
