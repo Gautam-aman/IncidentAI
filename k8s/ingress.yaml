@@ -1,0 +1,32 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+
+metadata:
+  name: incidentai-ingress
+  namespace: incidentai
+
+spec:
+
+  ingressClassName: nginx
+
+  rules:
+
+    - host: incidentai.local
+
+      http:
+
+        paths:
+
+          - path: /
+
+            pathType: Prefix
+
+            backend:
+
+              service:
+
+                name: gateway-service
+
+                port:
+
+                  number: 8080
